@@ -1,0 +1,53 @@
+#ss882faemail-table input[type=checkbox]{height:0;width:0;visibility:hidden;display:none;}
+#ss882faemail-table label{cursor:pointer;text-indent:-9999px;width:60px;height:30px;background:grey;display:block;border-radius:100px;position:relative}
+#ss882faemail-table label:after{content:"OFF";position:absolute;top:5px;left:5px;width:20px;height:20px;background:#fff;border-radius:90px;transition:.3s;font-size: 8px;text-align: center;text-indent: initial;line-height: 2.5;color: grey;}
+#ss882faemail-table input:checked + label { background: #3bd237; }
+#ss882faemail-table input:checked + label:after { content:"ON"; left: calc(100% - 5px); transform: translateX(-100%); }
+
+#ss882faemail-table-wrapper {
+    box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.26);
+    border-radius: 8px;
+    width:100%;
+    overflow-x: auto;
+    background:white;
+}
+#ss882faemail-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin:0;
+}
+#ss882faemail-table th {
+    border-bottom: 1px solid #ddd;
+	padding-right:40px!important;
+}
+
+#ss882faemail-table th, #ss882faemail-table td {
+    text-align: left;
+    padding: 12px;
+	position:relative;
+    vertical-align: middle;
+}
+#ss882faemail-table td {
+    font-family:monospace;
+}
+
+#ss882faemail-table tr {
+    border-bottom: 1px solid #ddd;
+}
+#ss882faemail-table tr:last-child th, #ss882faemail-table tr:last-child {
+    border-bottom:0;
+}
+
+#ss882faemail-table th, #ss882faemail-table tr:hover {
+    background-color: #f9fafb;
+}
+
+
+
+@media screen and (max-width:768px) {
+
+	#ss882faemail-table th {
+		padding-right:20px!important;
+	}
+
+}
