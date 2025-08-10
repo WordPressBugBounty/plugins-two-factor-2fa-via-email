@@ -4,7 +4,7 @@ Donate link: https://paypal.me/SS88/
 Tags: 2fa, two factor, 2fa authentication, two-factor authentication, authentication
 Requires at least: 4.6
 Tested up to: 6.8
-Stable tag: 1.9.6
+Stable tag: 1.9.7
 Requires PHP: 5.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -131,6 +131,9 @@ Please note that if you have `SS88_2FAVE_ENABLE_ALL`, `SS88_2FAVE_ENABLE_ADMINS`
 4. An email sent to the site admin when the 2FA plugin is disabled.
 
 == Changelog ==
+
+= 1.9.7 =
+* PHP Warning fix on new user
 
 = 1.9.6 =
 * Integrated Initialization Vector

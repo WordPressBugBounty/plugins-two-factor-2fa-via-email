@@ -3,7 +3,7 @@
 Plugin Name: Two Factor (2FA) Authentication via Email
 Plugin URI: https://ss88.us/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.6
+Version: 1.9.7
 Author: SS88 LLC
 Author URI: https://ss88.us
 Text Domain: two-factor-2fa-via-email
@@ -11,7 +11,7 @@ Text Domain: two-factor-2fa-via-email
 
 class SS88_2FAVE {
 
-    protected $version = '1.9.6';
+    protected $version = '1.9.7';
 	protected $email_tags = [];
 	protected $expires = 15;
     protected $cipher = 'AES-256-CBC';
@@ -351,8 +351,10 @@ class SS88_2FAVE {
 
 	function userOptions($U) {
 
-        $isEnabled = $this->isEnabled($U->ID);
-        $isAPIEnabled = $this->isEnabled($U->ID, 'API');
+        $isUser = is_object($U) && isset($U->ID);
+
+        $isEnabled = $isUser ? $this->isEnabled($U->ID) : false;
+        $isAPIEnabled = $isUser ? $this->isEnabled($U->ID, 'API') : false;
         $isChecked = ($isEnabled) ? 'checked="checked"' : '';
         $isCheckedAPI = ($isAPIEnabled) ? 'checked="checked"' : '';
 
