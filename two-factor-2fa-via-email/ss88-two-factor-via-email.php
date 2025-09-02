@@ -3,7 +3,7 @@
 Plugin Name: Two Factor (2FA) Authentication via Email
 Plugin URI: https://ss88.us/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.7
+Version: 1.9.8
 Author: SS88 LLC
 Author URI: https://ss88.us
 Text Domain: two-factor-2fa-via-email
@@ -11,7 +11,7 @@ Text Domain: two-factor-2fa-via-email
 
 class SS88_2FAVE {
 
-    protected $version = '1.9.7';
+    protected $version = '1.9.8';
 	protected $email_tags = [];
 	protected $expires = 15;
     protected $cipher = 'AES-256-CBC';
@@ -35,6 +35,7 @@ class SS88_2FAVE {
 		}
 
         add_action('wp_login', [$this, 'wp_login'], 1, 2);
+		add_filter('rest_authentication_errors', [$this, 'rest_authentication_errors'], 10, 1);
         add_action('login_init', [$this, 'processTokenLogin']);
 		add_action('deactivated_plugin', [$this, 'deactivated_plugin']);
 
@@ -214,18 +215,6 @@ class SS88_2FAVE {
 
 	public function wp_login($user_login, $U) {
 
-        // Let's check to see if it's an API call
-        if(strpos($_SERVER['REQUEST_URI'], '/wp-json/') === 0 || strpos($_SERVER['REQUEST_URI'], '?rest_route=') === 0) {
-
-            if(!$this->isEnabled($U->ID, 'API')) return;
-
-            wp_send_json_error([
-                'message' => __('2FA is enabled on this account. Unable to authenticate.', 'two-factor-2fa-via-email')
-            ], 403);
-            exit;
-
-        }
-
 		if(!isset($_GET['token'])) {
 
 			if(!$this->isEnabled($U->ID)) return;
@@ -258,6 +247,48 @@ class SS88_2FAVE {
 
 		}
 
+	}
+	
+	public function rest_authentication_errors($result) {
+		
+		if (!empty($result)) return $result;
+		
+		$AuthorizationHeader = $this->get_basic_auth_header();
+		
+		if($AuthorizationHeader) {
+		
+			$user = wp_get_current_user();
+			if ($user && $user->ID && $this->isEnabled($user->ID, 'API')) {
+				return new WP_Error(
+					'rest_forbidden',
+					__('2FA is enabled on this account. Unable to authenticate.', 'two-factor-2fa-via-email'),
+					['status' => 403]
+				);
+			}
+			
+		}
+
+		return $result;
+		
+	}
+	
+	private function get_basic_auth_header() {
+		
+		$h = '';
+		if ( isset( $_SERVER['HTTP_AUTHORIZATION'] ) ) {
+			$h = $_SERVER['HTTP_AUTHORIZATION'];
+		} elseif ( isset( $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ) ) {
+			$h = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+		} elseif ( isset( $_SERVER['AUTHORIZATION'] ) ) {
+			$h = $_SERVER['AUTHORIZATION'];
+		}
+
+		
+		if ( preg_match('/^(Basic|Bearer|Application)\s+/i', $h) ) {
+			return $h;
+		}
+		
+		return false;
 	}
 
     public function isEnabled($uID, $type = 'LOGIN') {
