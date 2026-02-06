@@ -3,8 +3,8 @@ Contributors: SS88_UK
 Donate link: https://paypal.me/SS88/
 Tags: 2fa, two factor, 2fa authentication, two-factor authentication, authentication
 Requires at least: 4.6
-Tested up to: 6.8
-Stable tag: 1.9.8
+Tested up to: 6.9
+Stable tag: 1.9.9
 Requires PHP: 5.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -28,7 +28,7 @@ WordPress is the world’s most popular content management system (CMS), with ov
 * ✨ [Export Single Post Page](https://wordpress.org/plugins/single-post-page-export/)
 * 🙍‍♂️ [View User Metadata](https://wordpress.org/plugins/view-user-metadata/)
 * 🔠 [Enable Turnstile (Cloudflare) for Gravity Forms](https://wordpress.org/plugins/enable-turnstile-cloudflare-for-gravity-forms/)
-* ⭐️⭐️⭐️⭐️⭐️ [Gravity Forms to FreeScout](https://ss88.us/plugins/gravity-forms-freescout?utm_campaign=OtherPlugins)
+* ⭐️⭐️⭐️⭐️⭐️ [Gravity Forms to FreeScout](https://neoboffin.com/plugins/gravity-forms-freescout?utm_campaign=OtherPlugins)
 
 == Installation ==
 
@@ -131,6 +131,10 @@ Please note that if you have `SS88_2FAVE_ENABLE_ALL`, `SS88_2FAVE_ENABLE_ADMINS`
 4. An email sent to the site admin when the 2FA plugin is disabled.
 
 == Changelog ==
+
+= 1.9.9 =
+* Please update ASAP. Security Fix: CVE-2025-13587
+* Removal of logo on 2FA Login Screen
 
 = 1.9.8 =
 * Thank you for 10,000+ active installations! :-)

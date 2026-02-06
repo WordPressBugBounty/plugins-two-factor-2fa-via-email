@@ -95,14 +95,14 @@
 													<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:25px;font-weight:300;line-height:36px;text-align:left;color:#dd5353;"><?php _e('2FA plugin was deactivated!', 'two-factor-2fa-via-email'); ?></div>
+																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:25px;font-weight:300;line-height:36px;text-align:left;color:#dd5353;"><?php esc_html_e('2FA plugin was deactivated!', 'two-factor-2fa-via-email'); ?></div>
 															</td>
 														</tr>
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;text-align:left;color:#001420;">
-                                                                    👋🏼 <?php printf( __('Hi %s', 'two-factor-2fa-via-email'), sanitize_text_field($Tags['hello']) ); ?>,<br><br>
-																	<?php printf( wp_kses( __('The plugin <strong>Two Factor (2FA) Authentication via Email</strong> has been deactivated by the user <strong>%1$s</strong> <em>(%2$s)</em>', 'two-factor-2fa-via-email'), ['strong' => true, 'em' => true]) , sanitize_text_field($Tags['username']), sanitize_text_field($Tags['email']) ); ?>
+                                                                    👋🏼 <?php printf( esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['hello'])) ); ?>,<br><br>
+																	<?php printf( wp_kses( __('The plugin <strong>Two Factor (2FA) Authentication via Email</strong> has been deactivated by the user <strong>%1$s</strong> <em>(%2$s)</em>', 'two-factor-2fa-via-email'), ['strong' => true, 'em' => true]) , esc_html(sanitize_text_field($Tags['username'])), esc_html(sanitize_text_field($Tags['email'])) ); ?>
 																	<br><br><?php echo wp_kses( __('If this was intended you can ignore this email, otherwise please click the button below to activate the plugin <em>immediately</em>.', 'two-factor-2fa-via-email'), ['em' => true]); ?>
                                                                 </div>
 															</td>
@@ -111,7 +111,7 @@
 															<td align="center" vertical-align="middle" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;width:200px;line-height:100%;">
 																	<tr>
-																		<td align="center" bgcolor="#dd5353" role="presentation" style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:10px 25px;background:#dd5353;" valign="middle"><a href="<?php echo esc_url($Tags['url']); ?>" style="display:inline-block;width:150px;background:#dd5353;color:#FFFFFF;font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:8px;" target="_blank"><?php _e('Activate Plugin', 'two-factor-2fa-via-email'); ?></a></td>
+																		<td align="center" bgcolor="#dd5353" role="presentation" style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:10px 25px;background:#dd5353;" valign="middle"><a href="<?php echo esc_url($Tags['url']); ?>" style="display:inline-block;width:150px;background:#dd5353;color:#FFFFFF;font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:8px;" target="_blank"><?php esc_html_e('Activate Plugin', 'two-factor-2fa-via-email'); ?></a></td>
 																	</tr>
 																</table>
 															</td>
@@ -119,7 +119,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;padding-top:50px;">
 															<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:21px;text-align:left;color:#001420;background:whitesmoke; padding:20px 40px;border-radius:5px;opacity:0.5">
-																<?php printf( __('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
+																<?php printf( esc_url('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
 															</div>
 															</td>
 														</tr>
@@ -155,7 +155,7 @@
 														<tr>
 															<td align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;word-break:break-word;">
 																<div style="font-size:20px;margin-bottom:10px;">🦄</div>
-																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:16px;text-align:center;color:#5B768C;"><?php _e('This email is automatically generated. Please do not reply.', 'two-factor-2fa-via-email'); ?></div>
+																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:16px;text-align:center;color:#5B768C;"><?php esc_html_e('This email is automatically generated. Please do not reply.', 'two-factor-2fa-via-email'); ?></div>
 															</td>
 														</tr>
 													</table>

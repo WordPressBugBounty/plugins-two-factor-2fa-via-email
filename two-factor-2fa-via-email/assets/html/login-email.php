@@ -95,14 +95,14 @@
 													<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:25px;font-weight:300;line-height:36px;text-align:left;color:#569f59;"><?php _e('Your unique login link', 'two-factor-2fa-via-email'); ?></div>
+																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:25px;font-weight:300;line-height:36px;text-align:left;color:#569f59;"><?php esc_html_e('Your unique login link', 'two-factor-2fa-via-email'); ?></div>
 															</td>
 														</tr>
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;text-align:left;color:#001420;">
-                                                                    👋🏼 <?php printf( __('Hi %s', 'two-factor-2fa-via-email'), sanitize_text_field($Tags['name']) ); ?>,<br><br>
-																	<?php echo wp_kses( __('You <em>(or someone else)</em> has attempted to login to your account. The login was <strong>successful</strong> but has been blocked via Two-Factor Authentication.', 'two-factor-2fa-via-email'), ['em' => true, 'strong' => true]); ?><br><br><?php _e('Click the button below to login', 'two-factor-2fa-via-email'); ?>:
+                                                                    👋🏼 <?php printf( esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['name'])) ); ?>,<br><br>
+																	<?php echo wp_kses( __('You <em>(or someone else)</em> has attempted to login to your account. The login was <strong>successful</strong> but has been blocked via Two-Factor Authentication.', 'two-factor-2fa-via-email'), ['em' => true, 'strong' => true]); ?><br><br><?php esc_html_e('Click the button below to login', 'two-factor-2fa-via-email'); ?>:
                                                                 </div>
 															</td>
 														</tr>
@@ -110,7 +110,7 @@
 															<td align="center" vertical-align="middle" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;width:200px;line-height:100%;">
 																	<tr>
-																		<td align="center" bgcolor="#ff0078" role="presentation" style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:10px 25px;background:#569f59;" valign="middle"><a href="<?php echo esc_url($Tags['url']); ?>" style="display:inline-block;width:150px;background:#569f59;color:#FFFFFF;font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:8px;" target="_blank"><?php _e('Log Me In', 'two-factor-2fa-via-email'); ?></a></td>
+																		<td align="center" bgcolor="#ff0078" role="presentation" style="border:none;border-radius:8px;cursor:auto;mso-padding-alt:10px 25px;background:#569f59;" valign="middle"><a href="<?php echo esc_url($Tags['url']); ?>" style="display:inline-block;width:150px;background:#569f59;color:#FFFFFF;font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:8px;" target="_blank"><?php esc_html_e('Log Me In', 'two-factor-2fa-via-email'); ?></a></td>
 																	</tr>
 																</table>
 															</td>
@@ -118,7 +118,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;padding-top:50px;">
 															<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:21px;text-align:left;color:#001420;background:whitesmoke; padding:20px 40px;border-radius:5px;opacity:0.5">
-																<?php printf( __('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
+																<?php printf( esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
 															</div>
 															</td>
 														</tr>
@@ -154,7 +154,7 @@
 														<tr>
 															<td align="center" style="font-size:0px;padding:10px 25px;padding-top:0px;word-break:break-word;">
 																<div style="font-size:20px;margin-bottom:10px;">🦄</div>
-																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:16px;text-align:center;color:#5B768C;"><?php _e('This email is automatically generated. Please do not reply.', 'two-factor-2fa-via-email'); ?></div>
+																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:16px;text-align:center;color:#5B768C;"><?php esc_html_e('This email is automatically generated. Please do not reply.', 'two-factor-2fa-via-email'); ?></div>
 															</td>
 														</tr>
 													</table>

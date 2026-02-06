@@ -1,12 +1,13 @@
 <?php
 /*
 Plugin Name: Two Factor (2FA) Authentication via Email
-Plugin URI: https://ss88.us/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
+Plugin URI: https://neoboffin.com/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.8
-Author: SS88 LLC
-Author URI: https://ss88.us
+Version: 1.9.9
+Author: Neoboffin LLC
+Author URI: https://neoboffin.com
 Text Domain: two-factor-2fa-via-email
+License: GPL2
 */
 
 class SS88_2FAVE {
@@ -104,24 +105,24 @@ class SS88_2FAVE {
         $class = 'notice notice-error is-dismissible SS88_2FAVE';
         $message = '<div style="display:flex;gap:20px;">
                         <svg style="min-width:50px;" xmlns="http://www.w3.org/2000/svg" width="31.458" height="39.198" viewBox="0 0 31.458 39.198"><g id="download" transform="translate(-18.541 -9.167)"><g id="Group_1" data-name="Group 1" transform="translate(18.541 9.167)"><path id="Path_2" data-name="Path 2" d="M47.882,33.335a2.117,2.117,0,0,1-2.117-2.117V17.634A4.239,4.239,0,0,0,41.531,13.4H38.355a4.239,4.239,0,0,0-4.234,4.234V31.218a2.117,2.117,0,1,1-4.234,0V17.634a8.477,8.477,0,0,1,8.467-8.467H41.53A8.477,8.477,0,0,1,50,17.634V31.218a2.115,2.115,0,0,1-2.116,2.116Z" transform="translate(-24.214 -9.167)" fill="#333"/><path id="Path_3" data-name="Path 3" d="M45.208,60.6H23.333a4.792,4.792,0,0,1-4.792-4.792V38.426a4.792,4.792,0,0,1,4.792-4.792H45.207A4.792,4.792,0,0,1,50,38.426V55.806A4.791,4.791,0,0,1,45.208,60.6Z" transform="translate(-18.541 -21.401)" fill="#f8b26a"/></g></g></svg>
-                        <div><strong>Two Factor (2FA) Authentication via Email</strong><br>' . __('We have not detected a plugin installed that will handle your emails via SMTP. Please note, if you enable our plugin for a user you must make sure that your WordPress website sends emails correctly, otherwise the user will be locked out until email sending works on your website.', 'two-factor-2fa-via-email') . '</div>
+                        <div><strong>Two Factor (2FA) Authentication via Email</strong><br>' . esc_html__('We have not detected a plugin installed that will handle your emails via SMTP. Please note, if you enable our plugin for a user you must make sure that your WordPress website sends emails correctly, otherwise the user will be locked out until email sending works on your website.', 'two-factor-2fa-via-email') . '</div>
                     </div>';
     
-        printf( '<div class="%1$s" data-type="smtp"><p>%2$s</p></div>', esc_attr( $class ), $message);
+        printf( '<div class="%1$s" data-type="smtp"><p>%2$s</p></div>', esc_attr( $class ), wp_kses_post($message));
 
     }
 
     function admin_enqueue_scripts() {
 
         wp_enqueue_style('SS88_2FAVE', plugin_dir_url( __FILE__ ) . 'assets/css/user.css', false, $this->version);
-        wp_enqueue_script('SS88_2FAVE-admin', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', false, $this->version);
+        wp_enqueue_script('SS88_2FAVE-admin', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', false, $this->version, ['in_footer' => true]);
         wp_localize_script('SS88_2FAVE-admin', 'ss88', array('ajax_url' => admin_url( 'admin-ajax.php' )));
 
     }
 
     function processTokenLogin()
     {
-        if(!isset($_GET['token'])) return;
+        if(!isset($_GET['token']) || $_GET['token'] === '') return;
         
         $Token = sanitize_text_field($_GET['token']);
 
@@ -135,7 +136,7 @@ class SS88_2FAVE {
             
             if(!$Token) {
 
-                $this->outputPage('<p><strong>'. __('Token Decryption Failure', 'two-factor-2fa-via-email') .'</strong><p><p>'. __('The token you are using is invalid and could not be decrypted. Please try logging in again.', 'two-factor-2fa-via-email') .'</p>');
+                $this->outputPage('<p><strong>'. esc_html__('Token Decryption Failure', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__('The token you are using is invalid and could not be decrypted. Please try logging in again.', 'two-factor-2fa-via-email') .'</p>');
 
             }
 
@@ -150,7 +151,7 @@ class SS88_2FAVE {
         if(isset($Token_GET) && isset($UserID) && isset($Token_UA))
         {
             $U = get_userdata($UserID);
-            if(!$U) die( __('User does not exist.', 'two-factor-2fa-via-email') );
+            if(!$U) die( esc_html__('User does not exist.', 'two-factor-2fa-via-email') );
             $UserID = $U->ID;
 
             $Token = get_user_meta($UserID, 'SS882FAEmail_token', true);
@@ -158,19 +159,19 @@ class SS88_2FAVE {
 
 		    if(((time() - $Timestamp) >= ($this->expires * 60))) {
                 
-                $this->outputPage('<p><strong>'. __('Token Expired', 'two-factor-2fa-via-email') .'</strong><p><p>'. __('The token you are using has expired.', 'two-factor-2fa-via-email') .'</p>');
+                $this->outputPage('<p><strong>'. esc_html__('Token Expired', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__('The token you are using has expired.', 'two-factor-2fa-via-email') .'</p>');
 
             }
 
             if($Token_UA!==md5($_SERVER['HTTP_USER_AGENT'])) {
                 
-                $this->outputPage('<p><strong>'. __('Agent Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. __("The token's User Agent does not match.", 'two-factor-2fa-via-email') .'</p>');
+                $this->outputPage('<p><strong>'. esc_html__('Agent Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__("The token's User Agent does not match.", 'two-factor-2fa-via-email') .'</p>');
 
             }
 
             if($Token_GET!==$Token) {
                 
-                $this->outputPage('<p><strong>'. __('Token Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. __('The token you are using does not match or has already been used.', 'two-factor-2fa-via-email') .'</p>');
+                $this->outputPage('<p><strong>'. esc_html__('Token Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__('The token you are using does not match or has already been used.', 'two-factor-2fa-via-email') .'</p>');
 
             }
 
@@ -215,7 +216,7 @@ class SS88_2FAVE {
 
 	public function wp_login($user_login, $U) {
 
-		if(!isset($_GET['token'])) {
+		if(!isset($_GET['token']) || $_GET['token'] === '') {
 
 			if(!$this->isEnabled($U->ID)) return;
 
@@ -228,8 +229,8 @@ class SS88_2FAVE {
 			if($this->emailToken($U)) {
 
 				$this->outputPage('
-					<p><strong>'. __('Account Protected', 'two-factor-2fa-via-email') .'</strong><p>
-					<p>'. __('This account has Two Factor Authentication (2FA) enabled.', 'two-factor-2fa-via-email') .'<br />'. __('Please check your email inbox (including Spam/Junk) for your unique login link.', 'two-factor-2fa-via-email') .'</p>
+					<p><strong>'. esc_html__('Account Protected', 'two-factor-2fa-via-email') .'</strong><p>
+					<p>'. esc_html__('This account has Two Factor Authentication (2FA) enabled.', 'two-factor-2fa-via-email') .'<br />'. esc_html__('Please check your email inbox (including Spam/Junk) for your unique login link.', 'two-factor-2fa-via-email') .'</p>
 					<p><small id="timertext">'. sprintf( wp_kses( __('The unique link will expire in <span id="timer" data-minutes="%1$s">%1$s minutes</span>.', 'two-factor-2fa-via-email'), ['span' => ['id' => true, 'data-minutes' => true]]), $this->expires) .'</small></p>
 				');
 				
@@ -237,8 +238,8 @@ class SS88_2FAVE {
 			else {
 				
 				$this->outputPage('
-					<p><strong>'. __('Email Error', 'two-factor-2fa-via-email') .'</strong><p>
-					<p>'. __('This account has Two Factor Authentication (2FA) enabled.', 'two-factor-2fa-via-email') .'<br />'. __('The website was unable to send the verification email. Please try again or contact the website owner.', 'two-factor-2fa-via-email') .'</p>
+					<p><strong>'. esc_html__('Email Error', 'two-factor-2fa-via-email') .'</strong><p>
+					<p>'. esc_html__('This account has Two Factor Authentication (2FA) enabled.', 'two-factor-2fa-via-email') .'<br />'. esc_html__('The website was unable to send the verification email. Please try again or contact the website owner.', 'two-factor-2fa-via-email') .'</p>
 				');
 				
 			}
@@ -261,7 +262,7 @@ class SS88_2FAVE {
 			if ($user && $user->ID && $this->isEnabled($user->ID, 'API')) {
 				return new WP_Error(
 					'rest_forbidden',
-					__('2FA is enabled on this account. Unable to authenticate.', 'two-factor-2fa-via-email'),
+					esc_html__('2FA is enabled on this account. Unable to authenticate.', 'two-factor-2fa-via-email'),
 					['status' => 403]
 				);
 			}
@@ -359,7 +360,7 @@ class SS88_2FAVE {
 			'url' => $LoginLink,
 		];
 
-		return wp_mail($U->user_email, __('Here is your one-click login link', 'two-factor-2fa-via-email'), '', ['Content-Type: text/html; charset=UTF-8']);
+		return wp_mail($U->user_email, esc_html__('Here is your one-click login link', 'two-factor-2fa-via-email'), '', ['Content-Type: text/html; charset=UTF-8']);
 
 	}
 
@@ -396,13 +397,13 @@ class SS88_2FAVE {
     <table class="form-table" role="presentation" id="ss882faemail-table">
         <tbody>
             <tr>
-                <th><?php echo __('Enabled 2FA?', 'two-factor-2fa-via-email'); ?></th>
+                <th><?php echo esc_html__('Enabled 2FA?', 'two-factor-2fa-via-email'); ?></th>
                 <td>
                     <input type="checkbox" name="ss882fa_email_enabled" id="ss882fa_email_enabled" <?php echo esc_attr($isChecked); ?> /><label for="ss882fa_email_enabled">Toggle</label>
                 </td>
             </tr>
             <tr>
-                <th><?php echo __('Enable 2FA for REST API?', 'two-factor-2fa-via-email'); ?></th>
+                <th><?php echo esc_html__('Enable 2FA for REST API?', 'two-factor-2fa-via-email'); ?></th>
                 <td>
                     <input type="checkbox" name="ss882fa_api_enabled" id="ss882fa_api_enabled" <?php echo esc_attr($isCheckedAPI); ?> /><label for="ss882fa_api_enabled">Toggle</label>
                 </td>
@@ -469,7 +470,7 @@ class SS88_2FAVE {
 			require_once(plugin_dir_path(__FILE__) . 'assets/html/plugin-deactivated.php');
 			$the_email = ob_get_clean();
 
-			wp_mail($AdminEmail, __('2FA Plugin was deactivated!', 'two-factor-2fa-via-email'), $the_email, ['Content-Type: text/html; charset=UTF-8', 'X-Priority: 1 (Highest)', 'X-MSMail-Priority: High', 'Importance: High']);
+			wp_mail($AdminEmail, esc_html__('2FA Plugin was deactivated!', 'two-factor-2fa-via-email'), $the_email, ['Content-Type: text/html; charset=UTF-8', 'X-Priority: 1 (Highest)', 'X-MSMail-Priority: High', 'Importance: High']);
 
 		}
 
@@ -481,14 +482,14 @@ class SS88_2FAVE {
 
     function plugin_action_links($actions) {
         $mylinks = [
-            '<a href="https://wordpress.org/support/plugin/two-factor-2fa-via-email/" target="_blank">'. __('Need help?', 'two-factor-2fa-via-email') .'</a>',
+            '<a href="https://wordpress.org/support/plugin/two-factor-2fa-via-email/" target="_blank">'. esc_html__('Need help?', 'two-factor-2fa-via-email') .'</a>',
         ];
         return array_merge( $actions, $mylinks );
     }
 
 	function debug($msg) {
 
-		error_log("\n" . '[' . date('Y-m-d H:i:s') . '] ' .  $msg, 3, plugin_dir_path(__FILE__) . 'debug.log');
+		error_log("\n" . '[' . gmdate('Y-m-d H:i:s') . '] ' .  $msg, 3, plugin_dir_path(__FILE__) . 'debug.log');
 
 	}
 
