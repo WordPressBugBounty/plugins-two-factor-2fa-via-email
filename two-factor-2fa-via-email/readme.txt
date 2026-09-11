@@ -3,8 +3,8 @@ Contributors: SS88_UK
 Donate link: https://paypal.me/SS88/
 Tags: 2fa, two factor, 2fa authentication, two-factor authentication, authentication
 Requires at least: 4.6
-Tested up to: 6.9
-Stable tag: 1.9.9
+Tested up to: 7.1
+Stable tag: 1.9.10
 Requires PHP: 5.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -131,6 +131,15 @@ Please note that if you have `SS88_2FAVE_ENABLE_ALL`, `SS88_2FAVE_ENABLE_ADMINS`
 4. An email sent to the site admin when the 2FA plugin is disabled.
 
 == Changelog ==
+
+= 1.9.10 =
+* Security hardening. Please update ASAP.
+* New: XML-RPC logins are now blocked for accounts that have the "2FA for REST API" option enabled (matching the existing REST API behaviour). Accounts that have never set that option are unaffected.
+* New: The standard `wp_login` action now fires when a user completes 2FA via the email link, so integrations that rely on it (last-login trackers, login-alert emails, activity logs) work correctly.
+* Added child theme support for custom templates. `ss88-2fa/login-email.php` and `ss88-2fa/2fa-page.php` are now loaded from the child theme first, then the parent theme. Thanks @gstricklind!
+* Added filters `SS88_2FAVE_email_template` and `SS88_2FAVE_page_template` so developers can load the templates from any location.
+* Fix: The custom email template could fail to load if more than one 2FA email was sent in the same request.
+* Compatibility: Tested up to WordPress 7.1.
 
 = 1.9.9 =
 * Please update ASAP. Security Fix: CVE-2025-13587

@@ -3,19 +3,22 @@
 Plugin Name: Two Factor (2FA) Authentication via Email
 Plugin URI: https://neoboffin.com/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.9
+Version: 1.9.10
 Author: Neoboffin LLC
 Author URI: https://neoboffin.com
 Text Domain: two-factor-2fa-via-email
 License: GPL2
 */
 
+if ( ! defined( 'ABSPATH' ) ) exit;
+
 class SS88_2FAVE {
 
-    protected $version = '1.9.8';
+    protected $version = '1.9.10';
 	protected $email_tags = [];
 	protected $expires = 15;
     protected $cipher = 'AES-256-CBC';
+    protected $token_login = false;
 
     public static function init() {
 
@@ -37,6 +40,7 @@ class SS88_2FAVE {
 
         add_action('wp_login', [$this, 'wp_login'], 1, 2);
 		add_filter('rest_authentication_errors', [$this, 'rest_authentication_errors'], 10, 1);
+		add_filter('authenticate', [$this, 'block_xmlrpc_auth'], 30, 3);
         add_action('login_init', [$this, 'processTokenLogin']);
 		add_action('deactivated_plugin', [$this, 'deactivated_plugin']);
 
@@ -88,7 +92,13 @@ class SS88_2FAVE {
 
     function ajax_dismiss_notice() {
 
-        $Type = sanitize_text_field($_POST['type']);
+        check_ajax_referer('ss88_2fave_dismiss', 'nonce');
+
+        if(!current_user_can('manage_options')) {
+            wp_send_json_error('', 403);
+        }
+
+        $Type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
 
         if(!empty($Type) && $Type==='smtp') {
 
@@ -99,6 +109,8 @@ class SS88_2FAVE {
     }
 
     function show_admin_notice() {
+
+        if(!current_user_can('manage_options')) return;
 
         if(get_option('SS88_2FAVE_notice_dismissed_smtp')) return;
 
@@ -116,7 +128,7 @@ class SS88_2FAVE {
 
         wp_enqueue_style('SS88_2FAVE', plugin_dir_url( __FILE__ ) . 'assets/css/user.css', false, $this->version);
         wp_enqueue_script('SS88_2FAVE-admin', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', false, $this->version, ['in_footer' => true]);
-        wp_localize_script('SS88_2FAVE-admin', 'ss88', array('ajax_url' => admin_url( 'admin-ajax.php' )));
+        wp_localize_script('SS88_2FAVE-admin', 'ss88', array('ajax_url' => admin_url( 'admin-ajax.php' ), 'nonce' => wp_create_nonce('ss88_2fave_dismiss')));
 
     }
 
@@ -124,7 +136,7 @@ class SS88_2FAVE {
     {
         if(!isset($_GET['token']) || $_GET['token'] === '') return;
         
-        $Token = sanitize_text_field($_GET['token']);
+        $Token = sanitize_text_field(wp_unslash($_GET['token']));
 
         if(!empty($Token))
         {
@@ -163,13 +175,13 @@ class SS88_2FAVE {
 
             }
 
-            if($Token_UA!==md5($_SERVER['HTTP_USER_AGENT'])) {
+            if($Token_UA!==md5(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '')) {
                 
                 $this->outputPage('<p><strong>'. esc_html__('Agent Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__("The token's User Agent does not match.", 'two-factor-2fa-via-email') .'</p>');
 
             }
 
-            if($Token_GET!==$Token) {
+            if(!hash_equals((string)$Token, (string)$Token_GET)) {
                 
                 $this->outputPage('<p><strong>'. esc_html__('Token Mismatch', 'two-factor-2fa-via-email') .'</strong><p><p>'. esc_html__('The token you are using does not match or has already been used.', 'two-factor-2fa-via-email') .'</p>');
 
@@ -177,7 +189,13 @@ class SS88_2FAVE {
 
             if(wp_set_current_user($UserID)) {
 
+                // A validated token is the ONLY way this flag becomes true. wp_login() relies on it to skip 2FA.
+                $this->token_login = true;
+
                 wp_set_auth_cookie($UserID, $Token_RM);
+
+                // Emit the standard login action now that 2FA is complete, so wp_login integrations (last-login, login alerts, etc.) fire. Safe: token_login is already true, so our own handler above skips.
+                do_action('wp_login', $U->user_login, $U);
 
                 delete_user_meta($UserID, 'SS882FAEmail_token');
                 delete_user_meta($UserID, 'SS882FAEmail_timestamp');
@@ -186,8 +204,9 @@ class SS88_2FAVE {
                 $final_redirect = apply_filters('SS88_2FAVE_custom_redirect', $redirect_to_token);
 
                 if($final_redirect) {
-					
+
 					wp_safe_redirect($final_redirect);
+					exit;
 
 				}
 				else {
@@ -205,6 +224,7 @@ class SS88_2FAVE {
 						$redirect_to = apply_filters('login_redirect', admin_url(), '', $U);
 
 						wp_safe_redirect( $redirect_to );
+						exit;
 
 					}
 
@@ -216,7 +236,8 @@ class SS88_2FAVE {
 
 	public function wp_login($user_login, $U) {
 
-		if(!isset($_GET['token']) || $_GET['token'] === '') {
+		// Never trust the URL to decide whether 2FA applies. Only a token validated in processTokenLogin() sets $this->token_login.
+		if(!$this->token_login) {
 
 			if(!$this->isEnabled($U->ID)) return;
 
@@ -273,6 +294,24 @@ class SS88_2FAVE {
 		
 	}
 	
+	public function block_xmlrpc_auth($user, $username, $password) {
+
+		// XML-RPC authenticates by username + password and never fires wp_login, so it would otherwise bypass 2FA entirely.
+		// Only block when the API toggle is EXPLICITLY set for the account; if it was never set, leave XML-RPC open (metadata_exists guards the default-on behaviour of isEnabled()).
+		if(defined('XMLRPC_REQUEST') && XMLRPC_REQUEST && ($user instanceof WP_User) && metadata_exists('user', $user->ID, 'SS88_2FAVE_Enabled_API') && $this->isEnabled($user->ID, 'API')) {
+
+			return new WP_Error(
+				'xmlrpc_forbidden',
+				esc_html__('2FA is enabled on this account. Unable to authenticate.', 'two-factor-2fa-via-email'),
+				['status' => 403]
+			);
+
+		}
+
+		return $user;
+
+	}
+
 	private function get_basic_auth_header() {
 		
 		$h = '';
@@ -350,7 +389,7 @@ class SS88_2FAVE {
         $redirect_to = filter_input(INPUT_POST, 'redirect_to', FILTER_SANITIZE_URL);
 
         $GeneratedIV = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-        $Encrypted = openssl_encrypt(http_build_query(['t'=> $Token, 'u'=> $U->ID, 'r'=> $redirect_to, 'ua' => md5($_SERVER['HTTP_USER_AGENT']), 'rm' => $rememberme]), $this->cipher, wp_salt(), OPENSSL_RAW_DATA, $GeneratedIV);
+        $Encrypted = openssl_encrypt(http_build_query(['t'=> $Token, 'u'=> $U->ID, 'r'=> $redirect_to, 'ua' => md5(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''), 'rm' => $rememberme]), $this->cipher, wp_salt(), OPENSSL_RAW_DATA, $GeneratedIV);
         $EncryptedWithIV = base64_encode($GeneratedIV . $Encrypted);
 
         $LoginLink = add_query_arg(['token'=>urlencode($EncryptedWithIV)], site_url('wp-login.php', 'login'));
@@ -366,10 +405,13 @@ class SS88_2FAVE {
 
 	function wp_mail_override($args) {
 
+		// Only override the 2FA email itself, not any other emails sent later in the same request
+		remove_filter('wp_mail', [$this, 'wp_mail_override'], PHP_INT_MAX);
+
 		$Tags = $this->email_tags;
 
 		ob_start();
-		require_once $this->findEmailTemplate();
+		require $this->findEmailTemplate();
 		$the_email = ob_get_clean();
 
 		if(!empty($the_email)) {
@@ -428,11 +470,11 @@ class SS88_2FAVE {
 
     function outputPage($HTML) {
 
-		$customPage = get_template_directory() . '/ss88-2fa-page.php';
-		$customPageInThemeDirectory = get_template_directory() . '/ss88-2fa/2fa-page.php';
+		// Checks the child theme first, then the parent theme. The ss88-2fa folder takes priority over the legacy (v1.4) location.
+		$result = locate_template(['ss88-2fa/2fa-page.php', 'ss88-2fa-page.php']);
+		if(!$result) $result = plugin_dir_path(__FILE__) . 'assets/html/2fa-page.php';
 
-		$result = (file_exists($customPage)) ? $customPage : plugin_dir_path(__FILE__) . 'assets/html/2fa-page.php';
-		$result = (file_exists($customPageInThemeDirectory)) ? $customPageInThemeDirectory : $result;
+		$result = apply_filters('SS88_2FAVE_page_template', $result);
 
         include_once $result;
 
@@ -442,11 +484,11 @@ class SS88_2FAVE {
 
     function findEmailTemplate() {
 
-		$customEmailInThemeDirectory = get_template_directory() . '/ss88-2fa/login-email.php';
+		// Checks the child theme first, then the parent theme
+		$result = locate_template('ss88-2fa/login-email.php');
+		if(!$result) $result = plugin_dir_path(__FILE__) . 'assets/html/login-email.php';
 
-		$result = (file_exists($customEmailInThemeDirectory)) ? $customEmailInThemeDirectory : plugin_dir_path(__FILE__) . 'assets/html/login-email.php';
-
-        return $result;
+        return apply_filters('SS88_2FAVE_email_template', $result);
 
     }
 
@@ -486,12 +528,6 @@ class SS88_2FAVE {
         ];
         return array_merge( $actions, $mylinks );
     }
-
-	function debug($msg) {
-
-		error_log("\n" . '[' . gmdate('Y-m-d H:i:s') . '] ' .  $msg, 3, plugin_dir_path(__FILE__) . 'debug.log');
-
-	}
 
 }
 

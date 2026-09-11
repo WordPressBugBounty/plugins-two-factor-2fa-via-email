@@ -1,3 +1,4 @@
+<?php if ( ! defined( 'ABSPATH' ) ) exit; ?>
 <!-- SS88_EMAIL_START -->
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -119,7 +120,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;padding-top:50px;">
 															<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:21px;text-align:left;color:#001420;background:whitesmoke; padding:20px 40px;border-radius:5px;opacity:0.5">
-																<?php printf( esc_url('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
+																<?php printf( esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
 															</div>
 															</td>
 														</tr>

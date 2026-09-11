@@ -16,7 +16,7 @@ let SS88_2FAVE = {
                 fetch(ss88.ajax_url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(requestData = { action: 'SS88_2FAVE_DISMISS_NOTICE', type: e.target.parentElement.dataset.type}),
+                    body: new URLSearchParams(requestData = { action: 'SS88_2FAVE_DISMISS_NOTICE', type: e.target.parentElement.dataset.type, nonce: ss88.nonce}),
                 }).then(function(response) {
                     return response.json();
                 }).then(function(response) {
