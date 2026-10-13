@@ -3,7 +3,7 @@
 Plugin Name: Two Factor (2FA) Authentication via Email
 Plugin URI: https://neoboffin.com/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.10
+Version: 1.9.11
 Author: Neoboffin LLC
 Author URI: https://neoboffin.com
 Text Domain: two-factor-2fa-via-email
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SS88_2FAVE {
 
-    protected $version = '1.9.10';
+    protected $version = '1.9.11';
 	protected $email_tags = [];
 	protected $expires = 15;
     protected $cipher = 'AES-256-CBC';
@@ -69,6 +69,8 @@ class SS88_2FAVE {
 
         }
 
+        add_action('admin_notices', [$this, 'show_unicornpanel_notice']);
+
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), [$this, 'plugin_action_links']);
         add_action('wp_ajax_ss882fave_is_user_logged_in', [$this, 'ss882fave_is_user_logged_in']);
         add_action('wp_ajax_nopriv_ss882fave_is_user_logged_in', [$this, 'ss882fave_is_user_logged_in']);
@@ -100,9 +102,11 @@ class SS88_2FAVE {
 
         $Type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
 
-        if(!empty($Type) && $Type==='smtp') {
+        $AllowedTypes = ['smtp', 'unicornpanel'];
 
-            update_option('SS88_2FAVE_notice_dismissed_smtp', true);
+        if(in_array($Type, $AllowedTypes, true)) {
+
+            update_option('SS88_2FAVE_notice_dismissed_' . $Type, true);
 
         }
 
@@ -124,6 +128,28 @@ class SS88_2FAVE {
 
     }
 
+    function show_unicornpanel_notice() {
+
+        if(!current_user_can('manage_options')) return;
+
+        if(get_option('SS88_2FAVE_notice_dismissed_unicornpanel')) return;
+
+        echo '<div class="notice notice-info is-dismissible SS88_2FAVE" data-type="unicornpanel"><p>';
+        echo '<span style="display:flex;gap:15px;align-items:center;">';
+        echo '<img src="' . esc_url('https://unicornpanel.com/assets/img/upcp-logo.svg') . '" alt="Unicorn Panel" width="60" height="60" style="display:block;flex:0 0 auto;" />';
+        echo '<span>';
+        echo '<strong>' . esc_html__('We just released Unicorn Panel, our new hosting control panel built for multi-server fleets', 'two-factor-2fa-via-email') . '</strong><br>';
+        echo esc_html__('Provision, manage, and monitor every website, database, mailbox, and DNS zone across your entire fleet from one place. Free for 2 servers. Reselling included.', 'two-factor-2fa-via-email');
+        echo ' <a href="' . esc_url('https://unicornpanel.com?ref=WordPress&utm_campaign=WPdashboard') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Learn more', 'two-factor-2fa-via-email') . ' &rarr;</a>';
+        echo '<br><small style="opacity:0.7;">' . sprintf(
+            /* translators: %s: linked plugin name */
+            esc_html__('Brought to you by the %s plugin', 'two-factor-2fa-via-email'),
+            '<a href="' . esc_url('https://wordpress.org/plugins/two-factor-2fa-via-email/') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Two Factor (2FA) Authentication via Email', 'two-factor-2fa-via-email') . '</a>'
+        ) . '</small>';
+        echo '</span></span></p></div>';
+
+    }
+
     function admin_enqueue_scripts() {
 
         wp_enqueue_style('SS88_2FAVE', plugin_dir_url( __FILE__ ) . 'assets/css/user.css', false, $this->version);
@@ -140,7 +166,8 @@ class SS88_2FAVE {
 
         if(!empty($Token))
         {
-            $DecodedToken = base64_decode($Token);
+            // Tokens are hex-encoded as of 1.9.11 (URL/WAF-safe). Fall back to legacy base64 so links already sent still work through their expiry window.
+            $DecodedToken = (ctype_xdigit($Token) && strlen($Token) % 2 === 0) ? hex2bin($Token) : base64_decode($Token);
             $ExtractedIV = substr($DecodedToken, 0, openssl_cipher_iv_length($this->cipher));
             $ExtractedEncrypted = substr($DecodedToken, openssl_cipher_iv_length($this->cipher));
 
@@ -252,7 +279,7 @@ class SS88_2FAVE {
 				$this->outputPage('
 					<p><strong>'. esc_html__('Account Protected', 'two-factor-2fa-via-email') .'</strong><p>
 					<p>'. esc_html__('This account has Two Factor Authentication (2FA) enabled.', 'two-factor-2fa-via-email') .'<br />'. esc_html__('Please check your email inbox (including Spam/Junk) for your unique login link.', 'two-factor-2fa-via-email') .'</p>
-					<p><small id="timertext">'. sprintf( wp_kses( __('The unique link will expire in <span id="timer" data-minutes="%1$s">%1$s minutes</span>.', 'two-factor-2fa-via-email'), ['span' => ['id' => true, 'data-minutes' => true]]), $this->expires) .'</small></p>
+					<p><small id="timertext">'. sprintf( wp_kses( /* translators: %1$s: number of minutes before the one-time login link expires */ __('The unique link will expire in <span id="timer" data-minutes="%1$s">%1$s minutes</span>.', 'two-factor-2fa-via-email'), ['span' => ['id' => true, 'data-minutes' => true]]), $this->expires) .'</small></p>
 				');
 				
 			}
@@ -390,7 +417,8 @@ class SS88_2FAVE {
 
         $GeneratedIV = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
         $Encrypted = openssl_encrypt(http_build_query(['t'=> $Token, 'u'=> $U->ID, 'r'=> $redirect_to, 'ua' => md5(isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : ''), 'rm' => $rememberme]), $this->cipher, wp_salt(), OPENSSL_RAW_DATA, $GeneratedIV);
-        $EncryptedWithIV = base64_encode($GeneratedIV . $Encrypted);
+        // Hex keeps the token URL-safe (0-9a-f only) so WAFs don't flag the login link as an XSS/obfuscation attempt and lock users out.
+        $EncryptedWithIV = bin2hex($GeneratedIV . $Encrypted);
 
         $LoginLink = add_query_arg(['token'=>urlencode($EncryptedWithIV)], site_url('wp-login.php', 'login'));
 

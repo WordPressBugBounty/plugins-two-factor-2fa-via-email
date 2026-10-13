@@ -46,7 +46,6 @@
 	<!--[if mso]> <xml> <o:OfficeDocumentSettings> <o:AllowPNG/> <o:PixelsPerInch>96</o:PixelsPerInch> </o:OfficeDocumentSettings> </xml> <![endif]-->
 	<!--[if lte mso 11]><style type="text/css">.mj-outlook-group-fix{width:100% !important}</style><![endif]-->
 	<!--[if !mso]><!-->
-	<link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,700" rel="stylesheet" type="text/css">
 	<style type="text/css">
 		@import url(https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,700);
 	</style>
@@ -102,8 +101,8 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;text-align:left;color:#001420;">
-                                                                    👋🏼 <?php printf( esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['hello'])) ); ?>,<br><br>
-																	<?php printf( wp_kses( __('The plugin <strong>Two Factor (2FA) Authentication via Email</strong> has been deactivated by the user <strong>%1$s</strong> <em>(%2$s)</em>', 'two-factor-2fa-via-email'), ['strong' => true, 'em' => true]) , esc_html(sanitize_text_field($Tags['username'])), esc_html(sanitize_text_field($Tags['email'])) ); ?>
+                                                                    👋🏼 <?php printf( /* translators: %s: the site administrator's first name */ esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['hello'])) ); ?>,<br><br>
+																	<?php printf( wp_kses( /* translators: 1: username of the user who deactivated the plugin, 2: their email address */ __('The plugin <strong>Two Factor (2FA) Authentication via Email</strong> has been deactivated by the user <strong>%1$s</strong> <em>(%2$s)</em>', 'two-factor-2fa-via-email'), ['strong' => true, 'em' => true]) , esc_html(sanitize_text_field($Tags['username'])), esc_html(sanitize_text_field($Tags['email'])) ); ?>
 																	<br><br><?php echo wp_kses( __('If this was intended you can ignore this email, otherwise please click the button below to activate the plugin <em>immediately</em>.', 'two-factor-2fa-via-email'), ['em' => true]); ?>
                                                                 </div>
 															</td>
@@ -120,7 +119,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;padding-top:50px;">
 															<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:21px;text-align:left;color:#001420;background:whitesmoke; padding:20px 40px;border-radius:5px;opacity:0.5">
-																<?php printf( esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
+																<?php printf( /* translators: %s: the plugin activation URL */ esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
 															</div>
 															</td>
 														</tr>

@@ -46,7 +46,6 @@
 	<!--[if mso]> <xml> <o:OfficeDocumentSettings> <o:AllowPNG/> <o:PixelsPerInch>96</o:PixelsPerInch> </o:OfficeDocumentSettings> </xml> <![endif]-->
 	<!--[if lte mso 11]><style type="text/css">.mj-outlook-group-fix{width:100% !important}</style><![endif]-->
 	<!--[if !mso]><!-->
-	<link href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,700" rel="stylesheet" type="text/css">
 	<style type="text/css">
 		@import url(https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,700);
 	</style>
@@ -102,7 +101,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 																<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:16px;font-weight:300;line-height:21px;text-align:left;color:#001420;">
-                                                                    👋🏼 <?php printf( esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['name'])) ); ?>,<br><br>
+                                                                    👋🏼 <?php printf( /* translators: %s: the recipient's display name */ esc_html__('Hi %s', 'two-factor-2fa-via-email'), esc_html(sanitize_text_field($Tags['name'])) ); ?>,<br><br>
 																	<?php echo wp_kses( __('You <em>(or someone else)</em> has attempted to login to your account. The login was <strong>successful</strong> but has been blocked via Two-Factor Authentication.', 'two-factor-2fa-via-email'), ['em' => true, 'strong' => true]); ?><br><br><?php esc_html_e('Click the button below to login', 'two-factor-2fa-via-email'); ?>:
                                                                 </div>
 															</td>
@@ -119,7 +118,7 @@
 														<tr>
 															<td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;padding-top:50px;">
 															<div style="font-family:Montserrat, Helvetica, Arial, sans-serif;font-size:12px;font-weight:300;line-height:21px;text-align:left;color:#001420;background:whitesmoke; padding:20px 40px;border-radius:5px;opacity:0.5">
-																<?php printf( esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
+																<?php printf( /* translators: %s: the one-time login link URL */ esc_html__('If the button above does not work, you can also click/copy this link: %s', 'two-factor-2fa-via-email'), esc_url($Tags['url']) ); ?>
 															</div>
 															</td>
 														</tr>
