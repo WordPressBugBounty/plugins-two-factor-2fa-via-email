@@ -3,7 +3,7 @@
 Plugin Name: Two Factor (2FA) Authentication via Email
 Plugin URI: https://neoboffin.com/plugins/two-factor-2fa-authentication-via-email-plugin-for-wordpress
 Description: A lightweight plugin to allow the use of two-factor authentication (2FA) through email. One-click login with this Two-Factor (2FA) Authentication plugin for WordPress.
-Version: 1.9.11
+Version: 1.9.12
 Author: Neoboffin LLC
 Author URI: https://neoboffin.com
 Text Domain: two-factor-2fa-via-email
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class SS88_2FAVE {
 
-    protected $version = '1.9.11';
+    protected $version = '1.9.12';
 	protected $email_tags = [];
 	protected $expires = 15;
     protected $cipher = 'AES-256-CBC';
@@ -106,9 +106,12 @@ class SS88_2FAVE {
 
         if(in_array($Type, $AllowedTypes, true)) {
 
+            // Shared with other SS88 plugins so dismissing in one hides it in all
             update_option('SS88_2FAVE_notice_dismissed_' . $Type, true);
 
         }
+
+        wp_send_json_success();
 
     }
 
@@ -134,9 +137,9 @@ class SS88_2FAVE {
 
         if(get_option('SS88_2FAVE_notice_dismissed_unicornpanel')) return;
 
-        echo '<div class="notice notice-info is-dismissible SS88_2FAVE" data-type="unicornpanel"><p>';
+        echo '<div class="notice notice-info is-dismissible SS88_2FAVE ss88-unicornpanel-notice" data-type="unicornpanel"><p>';
         echo '<span style="display:flex;gap:15px;align-items:center;">';
-        echo '<img src="' . esc_url('https://unicornpanel.com/assets/img/upcp-logo.svg') . '" alt="Unicorn Panel" width="60" height="60" style="display:block;flex:0 0 auto;" />';
+        echo '<img src="' . esc_url(plugin_dir_url( __FILE__ ) . 'assets/img/unicornpanel-logo.svg') . '" alt="Unicorn Panel" width="60" height="60" style="display:block;flex:0 0 auto;" />';
         echo '<span>';
         echo '<strong>' . esc_html__('We just released Unicorn Panel, our new hosting control panel built for multi-server fleets', 'two-factor-2fa-via-email') . '</strong><br>';
         echo esc_html__('Provision, manage, and monitor every website, database, mailbox, and DNS zone across your entire fleet from one place. Free for 2 servers. Reselling included.', 'two-factor-2fa-via-email');

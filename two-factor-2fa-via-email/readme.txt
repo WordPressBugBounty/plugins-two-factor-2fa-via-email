@@ -4,7 +4,7 @@ Donate link: https://paypal.me/SS88/
 Tags: 2fa, two factor, 2fa authentication, two-factor authentication, authentication
 Requires at least: 4.6
 Tested up to: 7.1
-Stable tag: 1.9.11
+Stable tag: 1.9.12
 Requires PHP: 5.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -133,6 +133,10 @@ Please note that if you have `SS88_2FAVE_ENABLE_ALL`, `SS88_2FAVE_ENABLE_ADMINS`
 4. An email sent to the site admin when the 2FA plugin is disabled.
 
 == Changelog ==
+
+= 1.9.12 =
+* Fix: Dismissing admin notices now always saves, even if they're closed before the page finishes loading
+* Fix: The Unicorn Panel logo is now bundled with the plugin instead of loaded from an external site
 
 = 1.9.11 =
 * Fix: Login link tokens are now hex-encoded so firewalls/WAFs no longer mistakenly flag them as malicious and block the login link. Existing links remain valid until they expire.
